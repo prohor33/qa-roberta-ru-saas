@@ -4,7 +4,7 @@ USER root
 RUN mkdir /src
 
 COPY app /src/app
-COPY extractor /src/extractor
+COPY model /src/model
 COPY requirements.txt /src/
 
 WORKDIR /src

@@ -9,7 +9,7 @@ from flask import Flask, jsonify, make_response, render_template, request, curre
 from app.utils import (
     create_ok_response, create_error_response
 )
-from model.predict import extract_from_pdf
+from model.predict import load_model, predict_from_text
 
 
 app = Flask(__name__, template_folder="templates")
@@ -17,11 +17,6 @@ app = Flask(__name__, template_folder="templates")
 
 def get_log_message(work_id, msg_id, rq_id, msg):
     return f"[{work_id}, {msg_id}, {rq_id}] {msg}"
-
-
-def check_completeness(files):
-    if len(files) != 1:
-        raise IndexError(f"Expected 1 file, got {len(files)}")
 
 
 @app.route("/version", methods=["GET"])
@@ -52,6 +47,7 @@ def predict():
         "questions": <list of questions to answer>
     }
     """
+    cfg = current_app.config["config"]
 
     if "requestParameters" not in request.form:
         return make_response(jsonify({
@@ -60,7 +56,7 @@ def predict():
 
     input_params = json.loads(request.form["requestParameters"])
 
-    for param in ["msgId", "workId"]:
+    for param in ["msgId", "workId", "msgTm", "context", "questions"]:
         if param not in input_params:
             return make_response(jsonify({
                 "errorMsg": f"Form key requestParameters/'{param}' is not set!"
@@ -69,13 +65,9 @@ def predict():
     t_start = time()
 
     try:
-        file_list = list(request.files.listvalues())[0]
-
-        check_completeness(file_list)
-
-        pdf_input = io.BufferedReader(file_list[0])
-
-        model_result = extract_from_pdf(pdf_input)
+        text = input_params["context"]
+        questions = input_params["questions"]
+        model_result = predict_from_text(cfg, logger, model, tokenizer, text, questions)
 
     except Exception as e:
         output_data = create_error_response(
@@ -105,13 +97,15 @@ def index():
 @hydra.main(config_path="conf", config_name="config")
 def main(cfg):
     app.config["config"] = cfg
-    app.run(host=cfg.server.host, port=cfg.server.port, debug=True)
 
     global logger 
     logger = logging.getLogger("qa-roberta-ru-saas")
 
     logger.info("Working directory : {}".format(os.getcwd()))
     logger.info(f"Config: {OmegaConf.to_yaml(cfg)}")
+
+    global model, tokenizer
+    model, tokenizer = load_model(cfg, logger)
 
     app.run(host=cfg.server.host, port=cfg.server.port, threaded=False)
 

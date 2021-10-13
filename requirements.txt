@@ -1,4 +1,6 @@
-transformers==4.0.1
+transformers==4.9.1
 hydra-core==1.1.0
 torch==1.6.0
 Flask==1.1.2
+typeguard==2.12.0
+pytest==6.2.3
