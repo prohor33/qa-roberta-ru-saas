@@ -2,10 +2,19 @@ import io
 import pytest
 import json
 from app import app_main
+from app.app_main import prepare_app
+import os
+from hydra.utils import get_original_cwd, to_absolute_path
+from hydra import compose, initialize
 
+initialize(config_path="../../app/conf", job_name="test_app")
 
 @pytest.fixture
 def client():
+    print("Working directory : {}".format(os.getcwd()))
+    
+    cfg = compose(config_name="config")
+    prepare_app(cfg)
     app_main.app.config["TESTING"] = True
 
     with app_main.app.test_client() as client:
@@ -25,32 +34,29 @@ def test_version(client):
 
 
 def test_predict_no_params(client):
-    rv = client.post("/predict")
+    rv = client.post(
+        "/predict",
+        content_type='application/json'
+    )
 
     assert rv.status == "400 BAD REQUEST"
-    assert json.loads(rv.data) == {"errorMsg": "Form key 'requestParameters' is not set!"}
 
 
 def test_predict(client):
 
+    with open(to_absolute_path('tests/app/data/test_input.json'), 'r') as input_file:
+        input = json.load(input_file)
+
     rv = client.post(
         "/predict",
-        data=dict(
-            requestParameters=json.dumps(dict(
-                msgId="1",
-                msgTm="2019:08:10",
-                workId="23",
-                context="some text",
-                questions=["q0", "q1"]
-            ))
-        ),
+        json=input,
         content_type='application/json'
     )
 
     assert rv.status == "200 OK"
-    annwer = json.loads(rv.data)
-    assert annwer["workId"] == "23"
+    answer = json.loads(rv.data)
+    assert answer["workId"] == "23"
 
-    with open('data/test_output.json', 'r') as gold_file:
+    with open(to_absolute_path('tests/app/data/test_output.json'), 'r') as gold_file:
         gold = json.load(gold_file)
-        assert annwer["modelResult"] == gold
+        assert answer["modelResult"] == gold

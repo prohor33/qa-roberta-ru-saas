@@ -5,7 +5,7 @@ from omegaconf import OmegaConf
 import logging
 import os
 from time import time
-from flask import Flask, jsonify, make_response, render_template, request, current_app
+from flask import Flask, jsonify, make_response, render_template, request
 from app.utils import (
     create_ok_response, create_error_response
 )
@@ -21,7 +21,7 @@ def get_log_message(work_id, msg_id, rq_id, msg):
 
 @app.route("/version", methods=["GET"])
 def version():
-    cfg = current_app.config["config"]
+    cfg = app.config["config"]
     version_data = {
         'common': cfg.common_version
     }
@@ -47,14 +47,9 @@ def predict():
         "questions": <list of questions to answer>
     }
     """
-    cfg = current_app.config["config"]
+    cfg = app.config["config"]
 
-    if "requestParameters" not in request.form:
-        return make_response(jsonify({
-            "errorMsg": "Form key 'requestParameters' is not set!"
-        }), 400)
-
-    input_params = json.loads(request.form["requestParameters"])
+    input_params = request.json
 
     for param in ["msgId", "workId", "msgTm", "context", "questions"]:
         if param not in input_params:
@@ -62,9 +57,10 @@ def predict():
                 "errorMsg": f"Form key requestParameters/'{param}' is not set!"
             }), 400)
 
-    t_start = time()
-
     try:
+
+        t_start = time()
+
         text = input_params["context"]
         questions = input_params["questions"]
         model_result = predict_from_text(cfg, logger, model, tokenizer, text, questions)
@@ -94,8 +90,8 @@ def index():
     return render_template("index.html")
 
 
-@hydra.main(config_path="conf", config_name="config")
-def main(cfg):
+
+def prepare_app(cfg):
     app.config["config"] = cfg
 
     global logger 
@@ -107,7 +103,12 @@ def main(cfg):
     global model, tokenizer
     model, tokenizer = load_model(cfg, logger)
 
+
+@hydra.main(config_path="conf", config_name="config")
+def main(cfg):
+    prepare_app(cfg)
     app.run(host=cfg.server.host, port=cfg.server.port, threaded=False)
+
 
 if __name__ == "__main__":
     main()

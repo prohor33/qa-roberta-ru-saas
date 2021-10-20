@@ -1,0 +1,7 @@
+server:
+  host: 0.0.0.0
+  port: 8084
+
+common_version: 1.0.0
+device: cpu
+model_name: "AlexKay/xlm-roberta-large-qa-multilingual-finedtuned-ru"

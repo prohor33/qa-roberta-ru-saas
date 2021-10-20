@@ -15,7 +15,7 @@ def load_model(cfg, logger):
 
 
 @typechecked
-def predict_from_text(cfg, logger, model, tokenizer, text: str, questions: List[str]) -> List[str]:
+def predict_from_text(cfg, logger, model, tokenizer, text: str, questions: List[str]) -> List[dict]:
 
     model_result = []
 
@@ -37,7 +37,7 @@ def predict_from_text(cfg, logger, model, tokenizer, text: str, questions: List[
                 "answer": answer
             }
         )
-        logger.info(f"\nQuestion: {question}")
+        logger.info(f"Question: {question}")
         logger.info(f"Answer: {answer}")
 
     return model_result

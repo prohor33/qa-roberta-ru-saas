@@ -1,17 +1,16 @@
 from datetime import datetime
 from typeguard import typechecked
+from typing import List
 
 
-@typechecked(always=True)
 def get_date_time_rfc() -> str:
     return datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
 
-@typechecked(always=True)
 def create_ok_response(
         msg_id: str,
         work_id: str,
-        model_result: dict,
+        model_result: List[dict],
         model_time: float,
 ) -> dict:
     """
@@ -26,7 +25,6 @@ def create_ok_response(
     }
 
 
-@typechecked(always=True)
 def create_error_response(
         msg_id: str,
         work_id: str,
