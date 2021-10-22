@@ -1,6 +1,26 @@
 # QA Roberta Ru SaaS
 Question answering on russian with XLMRobertaLarge as a service
 
+## Build image
+
+```
+docker build . --tag qa-roberta-ru-saas
+```
+
+## Run and predict
+```
+docker run --rm -p 8080:8080 --name qa-roberta-ru-saas qa-roberta-ru-saas
+
+curl -H "Content-Type: application/json" --data @tests/app/data/test_input.json 0.0.0.0:8080/predict
+```
+
 
 ## To run tests:
-`pytest tests/`
+```
+pytest tests/
+```
+
+## To run app without docker container
+```
+PYTHONPATH=. python app/app_main.py
+```
