@@ -1,4 +1,4 @@
-FROM python:3.7-slim-buster
+FROM qts8n/cuda-python:runtime
 
 USER root
 RUN mkdir /src
