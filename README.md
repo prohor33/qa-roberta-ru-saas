@@ -34,3 +34,9 @@ pytest tests/
 ```
 PYTHONPATH=. python app/app_main.py
 ```
+
+## TODO:
+
+- [x] Run on GPU
+- [x] Support of context longer than 512 bpe
+- [ ] Predict on long context with sliding window
