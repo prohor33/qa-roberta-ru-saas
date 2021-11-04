@@ -1,5 +1,5 @@
 # QA Roberta Ru SaaS
-Question answering on russian with XLMRobertaLarge as a service
+Question answering on russian as a service with XLMRobertaLarge by [Alexander Kaigorodov](https://huggingface.co/AlexKay)
 
 ## Build image
 
