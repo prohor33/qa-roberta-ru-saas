@@ -26,7 +26,7 @@ def create_app(config_name="config", log_folder="outputs"):
 
     today = datetime.now()
     log_folder = os.path.join(log_folder, today.strftime('%Y-%m-%d'), today.strftime('%H-%M-%S'))
-    os.mkdir(log_folder)
+    os.makedirs(log_folder, exist_ok=True)
 
     log_file = os.path.join(log_folder, "app_main.log")
 
