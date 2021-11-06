@@ -12,4 +12,4 @@ WORKDIR /src
 RUN python --version
 RUN pip install -r requirements.txt
 
-CMD PYTHONPATH="." python app/app_main.py
+CMD gunicorn --config app/conf/gunicorn.py "app.app_main:create_app()"

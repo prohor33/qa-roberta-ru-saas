@@ -1,23 +1,20 @@
 import io
 import pytest
 import json
-from app import app_main
-from app.app_main import prepare_app
+from app.app_main import create_app
 import os
 from hydra.utils import get_original_cwd, to_absolute_path
 from hydra import compose, initialize
 
-initialize(config_path="../../app/conf", job_name="test_app")
 
 @pytest.fixture
 def client():
     print("Working directory : {}".format(os.getcwd()))
     
-    cfg = compose(config_name="config")
-    prepare_app(cfg)
-    app_main.app.config["TESTING"] = True
+    app = create_app()
+    app.config["TESTING"] = True
 
-    with app_main.app.test_client() as client:
+    with app.test_client() as client:
         yield client
 
 
