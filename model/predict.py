@@ -24,20 +24,24 @@ def load_model(cfg, logger):
 def predict_from_text(cfg, logger, model, tokenizer, text: str, questions: List[str]) -> List[dict]:
 
     model_result = []
+    MAX_TEXT_CHAR_LENGTH = 50000
     MAX_QUESTION_BPE_LENGTH = 256
-    MAX_INPUT_LENGTH = 512
+    MAX_MODEL_INPUT_LENGTH = 512
+
+    if len(text) > MAX_TEXT_CHAR_LENGTH:
+        raise ValueError(f"Text length exceed max text length. {len(text)} > {MAX_TEXT_CHAR_LENGTH}")
 
     for question in questions:
         inputs_q = tokenizer(question, add_special_tokens=False, return_tensors="pt")
         question_length = inputs_q['input_ids'].shape[1]
         if question_length > MAX_QUESTION_BPE_LENGTH:
-            raise ValueError(f"Too long question to ask. {question_length} > {MAX_QUESTION_BPE_LENGTH}")
+            raise ValueError(f"Question length long exceed max question length. {question_length} > {MAX_QUESTION_BPE_LENGTH}")
 
         inputs_t = tokenizer(text, add_special_tokens=False, return_tensors="pt")
         text_ids_original = inputs_t["input_ids"].tolist()[0]
 
         # In order to support text longer than 512 bpe (model context size), we will split to several contexts
-        max_text_lenth = MAX_INPUT_LENGTH - question_length - 4 # 0, [Q], 2, 2, [T], 2
+        max_text_lenth = MAX_MODEL_INPUT_LENGTH - question_length - 4 # 0, [Q], 2, 2, [T], 2
         contexts = inputs_t['input_ids'][0].split(max_text_lenth)
 
         full_text_answer_start_scores = []

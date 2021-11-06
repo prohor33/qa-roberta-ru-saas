@@ -1,6 +1,10 @@
 # QA Roberta Ru SaaS
 Question answering on russian with XLMRobertaLarge as a service. Thanks for the model to [Alexander Kaigorodov](https://huggingface.co/AlexKay).
 
+## Stack
+* Flask
+* Gunicorn
+
 ## Build image
 
 ```
@@ -22,6 +26,14 @@ device: cuda:0
 After build:
 ```
 sudo docker run --rm --gpus 0 -p 8080:8080 --name qa-roberta-ru-saas qa-roberta-ru-saas
+```
+To run with restart:
+```
+sudo docker run --gpus 0 -p 8080:8080 --restart always --name qa-roberta-ru-saas qa-roberta-ru-saas
+```
+To stop it later:
+```
+docker update --restart unless-stopped qa-roberta-ru-saas
 ```
 
 
