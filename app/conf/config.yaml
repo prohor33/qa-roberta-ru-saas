@@ -6,4 +6,4 @@ common_version: 1.0.0
 device: cpu
 model_name: "AlexKay/xlm-roberta-large-qa-multilingual-finedtuned-ru"
 local_weights: "weights/"
-load_local_weights: False
+load_local_weights: True

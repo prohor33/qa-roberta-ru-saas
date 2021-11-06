@@ -6,3 +6,4 @@ Flask==1.1.2
 typeguard==2.12.0
 pytest==6.2.3
 gunicorn==20.1.0
+wget==3.2
